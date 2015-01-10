@@ -1,3 +1,3 @@
 
-A small collection of SlackBuilds from my private collection.
+A selection of SlackBuilds from my collection.
 
