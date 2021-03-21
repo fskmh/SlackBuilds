@@ -1,0 +1,62 @@
+#!/bin/sh
+
+PRGNAM=megacli
+ZIPNAM=MegaCLI
+RPMNAM=MegaCli
+VERSION=${VERSION:-8.07.14}
+ZIPVER="$(echo $VERSION | sed -e 's/\./\-/g')"
+BUILD=${BUILD:-1}
+TAG=${TAG:-mh}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/mh}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+if [ "$ARCH" = "x86_64" ]; then
+  LIBDIRSUFFIX="64"
+else
+  LIBDIRSUFFIX=""
+fi
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+unzip -d $PRGNAM-$VERSION $CWD/${ZIPVER}_$ZIPNAM.zip
+cd $PRGNAM-$VERSION/Linux
+
+rpm2cpio < ${RPMNAM}-${VERSION}-${BUILD}.noarch.rpm | cpio -imdv
+chown -R root:root .
+find -L . \
+\( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+-o -perm 511 \) -exec chmod 755 {} \; -o \
+\( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+-o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+cp -ap opt $PKG/
+
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKG/usr/bin
+ln -s /opt/MegaRAID/$RPMNAM/$RPMNAM$LIBDIRSUFFIX $PKG/usr/bin/$PRGNAM
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp ${TMP}/${PRGNAM}-${VERSION}/${VERSION}_${ZIPNAM}.txt $PKG/usr/doc/$PRGNAM-$VERSION
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD.${PKGTYPE:-txz}
