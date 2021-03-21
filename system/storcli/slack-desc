@@ -8,10 +8,10 @@
        |-----handy-ruler------------------------------------------------------|
 storcli: storcli (LSI hardware RAID management utility)
 storcli:
-storcli:
-storcli:
-storcli:
-storcli:
+storcli: StorCLI is the successor to MegaCLI and allows Command Line Tools to
+storcli: manage and control LSI MegaRAID controllers. In this article you will
+storcli: find a collection of useful commands to administer your MegaRAID con-
+storcli: troller.
 storcli:
 storcli: http://www.broadcom.com
 storcli:
